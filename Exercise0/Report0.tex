@@ -1,9 +1,13 @@
 \documentclass{article}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
 \begin{document}
 \title{Machine Learning - Exercise 0: Dataset description}
-\author{A, B, C}
+\author{Bianca Apostolescu, Lu Chen, Matthias Glinzner}
 \date{}
 \maketitle
+
 \section*{Chosen data sets}
 The first data set we chose is titled \textit{"Crimes in Los Angeles from 2010"}.
 It is a transcription from original crime reports and contains relatively few missing attributes while at the same time the total number of samples is quite large.
@@ -21,25 +25,12 @@ The data are comprised of 1692056 samples with 26 attributes.
 They contain mostly nominal values, e.g. the area where a crime occurred, the description of the crime or the victim's sex.
 The important interval quantities are date and time of a crime being reported, the victim's age marking the single significant ratio.
 
-Looking at the distribution of total reported crime per year, we notice a considerable incline starting at the year 2015.
-
-% TODO: Plot here. What's up with '18? Does the data include the whole of '18?
-% Also: maybe create plot that shows reports by month?
-
-Also, interestingly, a majority of crimes occurs at noon, as can be seen in the following histogram:
-
-% TODO: Plot here.
-
+Looking at figure \ref{fig:clah}, starting with the distribution of total reported crime per year, we notice a considerable incline starting at the year 2015.
+Note though that the data for the year of 2018 is incomplete.
+Also, interestingly, a majority of crimes occurs at noon, as can be seen in figure \ref{fig:crtod}.
 In terms of victim characteristics, slightly more males than females are reported as victims.
 The data also show that most victims' descent is Hispanic, followed by White and Black.
-
-% TODO: Plots here. Also exchange the descent plot's letters with actual names.
-% Further: give concrete numbers.
-% Also: create one with victim age.
-
-Finally, the following scatter plot shows the rough location of the reports as coordinates:
-
-% TODO: Superimpose plot on screenshot from osm (export).
+Finally, figure \ref{fig:map} shows the rough location of the reported crimes plotted on a map of Los Angeles.
 
 \subsection*{Overwatch competitive ladder}
 This data set contains 3299 samples with 47 features.
@@ -52,25 +43,74 @@ The player deaths yield an average of 9825.5 which is unrealistically high.
 It is most likely that this data is either mislabelled or incorrect.
 Lastly, the player's accuracy sits at 9.45\% on average with a maximum of 59\%.
 
-Looking at match results, we can see that there are slightly more lost games than victories, draws are significantly rarer.
-
-% TODO: Plot here.
-
+Looking at data visualizations (figure \ref{fig:oclh}), starting with match results , we can see that there are slightly more lost games than victories, draws are significantly rarer.
 Further, there is a number of maps that are notably less voted for than others.
-These include \textit{"Junkertown"}, \textit{"Oasis"} and \textit{"Nepal"}.
-
-% TODO: Plot here.
-
+These include \textit{"Junkertown"}, \textit{"Oasis"} and \textit{"Nepal"}, which reflects the status of the competitive balancing of the game at that time.
 Looking at heroes played we see that the player mostly chooses support roles.
 This corresponds nicely with the relatively high average healing output noted earlier.
-
-% TODO: Plot here.
-
 Lastly and most interestingly, a look at the player's psychological condition reveals that most of the time they felt indifferent/neutral and in that state of mind their win/loss ratio is close to 1.
 "Good" and "great" conditions tend to have much more wins than losses.
 "Bad" and "tilted" conditions appear to have more losses than wins, suggesting that a player's negative mood might adversely affect their gameplay.
 
-% TODO: Plot here.
-% Also: Fill in author names & IDs.
+\subsection*{Figures}
+% TODO: maybe create plot that shows reports by month?
+
+% TODO: Exchange the descent plot's letters with actual names.
+% Further: give concrete numbers.
+% Also: create one with victim age.
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{plot1_CrimeReported.png}
+\caption{Crimes reported per year}
+\label{fig:crpy}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{plot2_TimeOccurred.png}
+\caption{Time of day of crimes reported}
+\label{fig:crtod}
+\end{subfigure}
+    
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{plot3_VictimSex.png}
+\caption{Victims' sex}
+\label{fig:vi_se}
+\end{subfigure}
+\caption{Crimes in Los Angeles - histograms}\label{fig:clah}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.55\textwidth]{MapFinal.png}
+\caption{Location of crimes reported.}
+\label{fig:map}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{plot5_WinLossDraw.png}
+\caption{Match results}
+\label{fig:ma_re}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{plot6_PlayedMaps.png}
+\caption{Played maps}
+\label{fig:pl_ma}
+\end{subfigure}
+    
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{plot7_HeroesChosen.png}
+\caption{Chosen heroes}
+\label{fig:ch_he}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{plot8_Mood.png}
+\caption{Player mood}
+\label{fig:pl_mo}
+\end{subfigure}
+\caption{Overwatch competitive ladder - histograms}\label{fig:oclh}
+\end{figure}
 
 \end{document}
