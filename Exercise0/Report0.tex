@@ -26,10 +26,16 @@ They contain mostly nominal values, e.g. the area where a crime occurred, the de
 The important interval quantities are date and time of a crime being reported, the victim's age marking the single significant ratio.
 
 Looking at figure \ref{fig:clah}, starting with the distribution of total reported crime per year, we notice a considerable incline starting at the year 2015.
-Note though that the data for the year of 2018 is incomplete.
-Also, interestingly, a majority of crimes occurs at noon, as can be seen in figure \ref{fig:crtod}.
-In terms of victim characteristics, slightly more males than females are reported as victims.
+Also, interestingly, a majority of crimes occurs at noon, whereas there is no particular "month of crime" as can be seen in figure \ref{fig:crmo}.
+
+In terms of victim characteristics, more males than females are reported as victims.
 The data also show that most victims' descent is Hispanic, followed by White and Black.
+Figure \ref{fig:age} points to another interesting observation: while the majority of victims fall into either the 25-39 or the 40-59 bracket, the number of victims younger than 18 increased drastically between 2010 and 2011.
+
+Further, figure \ref{fig:clcwt} gives an overview of the type of crime and type of weapon used.
+By far the most reported weapon are bare hands; adjusting for that, figure \ref{fig:we_us2} marks knifes and pistols as the overall "winners".
+This corresponds with "battery-simple assault" in general being the most reported crime type - only in 2016 it is overtaken by "vehicle-stolen" (figure \ref{fig:cr_ty}).
+
 Finally, figure \ref{fig:map} shows the rough location of the reported crimes plotted on a map of Los Angeles.
 
 \subsection*{Overwatch competitive ladder}
@@ -62,7 +68,7 @@ Lastly and most interestingly, a look at the player's psychological condition re
 \begin{figure}
 \centering
 \begin{subfigure}[b]{0.45\textwidth}
-\includegraphics[width=\textwidth]{plot1_CrimeReported.png}
+\includegraphics[width=\textwidth]{plot14_CrimeReportedNew.png}
 \caption{Crimes reported per year}
 \label{fig:crpy}
 \end{subfigure}
@@ -73,17 +79,61 @@ Lastly and most interestingly, a look at the player's psychological condition re
 \end{subfigure}
     
 \begin{subfigure}[b]{0.45\textwidth}
-\includegraphics[width=\textwidth]{plot3_VictimSex.png}
-\caption{Victims' sex}
-\label{fig:vi_se}
+\includegraphics[width=\textwidth]{plot9_MonthReported.png}
+\caption{Month of crimes reported}
+\label{fig:crmo}
 \end{subfigure}
 \caption{Crimes in Los Angeles - histograms}\label{fig:clah}
 \end{figure}
 
 \begin{figure}
 \centering
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{plot15_VictimSexNew.png}
+\caption{Victims' sex}
+\label{fig:vi_se}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=\textwidth]{plot10_Descent.png}
+\caption{Victims' descent}
+\label{fig:vi_de}
+\end{subfigure}
+\caption{Crimes in Los Angeles - histograms contd.}\label{fig:clah2}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.85\textwidth]{plot11_Age.png}
+\caption{Victims' ages}
+\label{fig:age}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.85\textwidth}
+\includegraphics[width=\textwidth]{plot12_weaponUsed.png}
+\caption{Types of weapon used}
+\label{fig:we_us}
+\end{subfigure}
+
+\begin{subfigure}[b]{0.85\textwidth}
+\includegraphics[width=\textwidth]{plot13_weaponUsed2.png}
+\caption{Types of weapon used without "Strong-Arm"}
+\label{fig:we_us2}
+\end{subfigure}
+    
+\begin{subfigure}[b]{0.85\textwidth}
+\includegraphics[width=\textwidth]{plot16_crimeType.png}
+\caption{Types of crime reported}
+\label{fig:cr_ty}
+\end{subfigure}
+\caption{Crimes in Los Angeles - crime and weapon types}\label{fig:clcwt}
+\end{figure}
+
+\begin{figure}
+\centering
 \includegraphics[width=0.55\textwidth]{MapFinal.png}
-\caption{Location of crimes reported.}
+\caption{Location of crimes reported}
 \label{fig:map}
 \end{figure}
 
