@@ -1,13 +1,29 @@
-import numpy as np
-from sklearn.cluster import HDBSCAN
-from sklearn.datasets import load_digits
-from sklearn.metrics import v_measure_score
+import pandas as pd
 
-X, true_labels = load_digits(return_X_y=True)
-print(f"number of digits: {len(np.unique(true_labels))}")
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import Perceptron
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
-hdbscan = HDBSCAN(min_cluster_size=15).fit(X)
-non_noisy_labels = hdbscan.labels_[hdbscan.labels_ != -1]
-print(f"number of clusters found: {len(np.unique(non_noisy_labels))}")
+data_bc = pd.read_csv('breast-cancer-diagnostic.shuf.lrn.csv')
+id_class = data_bc[['ID', 'class']].copy()
+data_bc = data_bc.drop(['ID', 'class'], axis=1)
+X_train, X_test, y_train, y_test = train_test_split(data_bc, id_class, test_size=0.2, random_state=5)
+y_train = y_train.drop('ID', axis=1)
+y_test_ids = y_test['ID'].copy()
+y_test = y_test.drop('ID', axis=1)
+pipe = make_pipeline(StandardScaler(), Perceptron(max_iter=100, eta0=0.1, random_state=5))
+pipe.fit(X_train, y_train)
+y_pred = pipe.predict(X_test)
 
-print(v_measure_score(true_labels[hdbscan.labels_ != -1], non_noisy_labels))
+out = pd.DataFrame(y_pred, y_test_ids)
+out.rename({0: 'class'}, axis='columns', inplace=True)
+out.to_csv('result.csv')
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy}')
+
+class_report = classification_report(y_test, y_pred)
+print("Classification Report:\n", class_report)
