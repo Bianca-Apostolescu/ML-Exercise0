@@ -17,6 +17,9 @@ from sklearn.preprocessing import StandardScaler
 data_bc = pd.read_csv('breast-cancer-diagnostic.shuf.lrn.csv')
 y = data_bc[['ID', 'class']].copy()
 X = data_bc.drop(['ID', 'class'], axis=1)
+X_comp = pd.read_csv('breast-cancer-diagnostic.shuf.tes.csv')
+y_comp = X_comp['ID'].copy()
+X_comp = X_comp.drop(['ID'], axis=1)
 
 # Prepare training and test sets using holdout method
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=5)
@@ -111,7 +114,11 @@ scores = cross_val_score(pipe, X, y['class'], cv=5)
 print(f'Cross-validation scores: {scores}')
 print("%0.2f accuracy with a standard deviation of %0.2f" % (scores.mean(), scores.std()))
 
+# Predict unclassified test set
+pipe.fit(X, y['class'])
+y_pred = pipe.predict(X_comp)
+
 # Write output file
-out = pd.DataFrame(y_pred, y_test['ID'])
+out = pd.DataFrame(y_pred, y_comp)
 out.rename({0: 'class'}, axis='columns', inplace=True)
 out.to_csv('result.csv')
