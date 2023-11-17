@@ -1,17 +1,24 @@
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score
-from sklearn.linear_model import Perceptron
+from sklearn.pipeline import make_pipeline
+
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
+
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
-from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import cross_val_score
+
 from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing  import Normalizer
+from sklearn.preprocessing import Normalizer
+
+from sklearn.ensemble import IsolationForest
+from sklearn.covariance import EllipticEnvelope
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.svm import OneClassSVM
 
 # Import and prepare data
 data_bc = pd.read_csv('breast-cancer-diagnostic.shuf.lrn.csv')
@@ -29,24 +36,29 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 # Define scaling method
 scaler_s = StandardScaler()
 scaler_n = Normalizer()
+list_scaler = [scaler_s, scaler_n]
 
-# Scaling and preparation of classifier
-pipe = make_pipeline(scaler_s, Perceptron(max_iter=10000, eta0=0.1, random_state=5))
-pipe.fit(X_train, y_train['class'])
-y_pred = pipe.predict(X_test)
+# Define outlier detection
+iso = IsolationForest(contamination=0.1)
+iso_ol = iso.fit_predict(X_train)
+mask_iso = iso_ol != -1
 
-# Output performance metrics
-print('PERCEPTRON')
-accuracy = accuracy_score(y_test['class'], y_pred)
-print(f'Accuracy: {accuracy}')
+ee = EllipticEnvelope(contamination=0.1)
+ee_ol = ee.fit_predict(X_train)
+mask_ee = ee_ol != -1
 
-class_report = classification_report(y_test['class'], y_pred)
-print("Classification Report:\n", class_report)
+lof = LocalOutlierFactor()
+lof_ol = lof.fit_predict(X_train)
+mask_lof = lof_ol != -1
 
-# Prepare training and test sets for cross-validation
-scores = cross_val_score(pipe, X, y['class'], cv=5)
-print(f'Cross-validation scores: {scores}')
-print("%0.2f accuracy with a standard deviation of %0.2f" % (scores.mean(), scores.std()))
+svm = OneClassSVM(nu=0.01)
+svm_ol = svm.fit_predict(X_train)
+mask_svm = svm_ol != -1
+
+list_outlier_masks = [mask_iso, mask_ee, mask_lof, mask_svm]
+
+#y_train = y_train[mask]
+#X_train = X_train[mask]
 
 # Scaling and preparation of classifier
 pipe = make_pipeline(scaler_s, KNeighborsClassifier(n_neighbors=17, weights='distance'))
@@ -58,23 +70,8 @@ print('K-NN')
 accuracy = accuracy_score(y_test['class'], y_pred)
 print(f'Accuracy: {accuracy}')
 
-class_report = classification_report(y_test['class'], y_pred)
-print("Classification Report:\n", class_report)
-
-# Prepare training and test sets for cross-validation
-scores = cross_val_score(pipe, X, y['class'], cv=5)
-print(f'Cross-validation scores: {scores}')
-print("%0.2f accuracy with a standard deviation of %0.2f" % (scores.mean(), scores.std()))
-
-# Scaling and preparation of classifier
-pipe = make_pipeline(scaler_n, DecisionTreeClassifier(criterion='entropy', max_depth=10))
-pipe.fit(X_train, y_train['class'])
-y_pred = pipe.predict(X_test)
-
-# Output performance metrics
-print('DECISION TREE')
-accuracy = accuracy_score(y_test['class'], y_pred)
-print(f'Accuracy: {accuracy}')
+conf_mat = confusion_matrix(y_test['class'], y_pred)
+print(conf_mat)
 
 class_report = classification_report(y_test['class'], y_pred)
 print("Classification Report:\n", class_report)
