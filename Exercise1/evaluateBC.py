@@ -33,12 +33,12 @@ X_comp = X_comp.drop(['ID'], axis=1)
 # Prepare training and test sets using holdout method
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=5)
 
-# Define scaling method
+# Define scaling methods
 scaler_s = StandardScaler()
 scaler_n = Normalizer()
-list_scaler = [scaler_s, scaler_n]
+list_scaler = [[scaler_s, 'Standard Scaler'], [scaler_n, 'Normalizer']]
 
-# Define outlier detection
+# Define outlier detection methods
 iso = IsolationForest(contamination=0.1)
 iso_ol = iso.fit_predict(X_train)
 mask_iso = iso_ol != -1
@@ -55,69 +55,52 @@ svm = OneClassSVM(nu=0.01)
 svm_ol = svm.fit_predict(X_train)
 mask_svm = svm_ol != -1
 
-list_outlier_masks = [mask_iso, mask_ee, mask_lof, mask_svm]
+list_outlier_masks = [[mask_iso, 'Isolation Forest'], [mask_ee, 'Minimum Covariance Determinant'], [mask_lof, 'Local Outlier Factor'], [mask_svm, 'One-Class SVM']]
 
-#y_train = y_train[mask]
-#X_train = X_train[mask]
+# Define Classifiers
+class_knn = KNeighborsClassifier(n_neighbors=17, weights='distance')
+class_rf = RandomForestClassifier()
+class_mlp = MLPClassifier(solver='lbfgs', alpha=0.0001, activation='tanh', random_state=5, max_iter=100, tol=0.01)
 
-# Scaling and preparation of classifier
-pipe = make_pipeline(scaler_s, KNeighborsClassifier(n_neighbors=17, weights='distance'))
-pipe.fit(X_train, y_train['class'])
-y_pred = pipe.predict(X_test)
+print(1e-4)
 
-# Output performance metrics
-print('K-NN')
-accuracy = accuracy_score(y_test['class'], y_pred)
-print(f'Accuracy: {accuracy}')
-
-conf_mat = confusion_matrix(y_test['class'], y_pred)
-print(conf_mat)
-
-class_report = classification_report(y_test['class'], y_pred)
-print("Classification Report:\n", class_report)
-
-# Prepare training and test sets for cross-validation
-scores = cross_val_score(pipe, X, y['class'], cv=5)
-print(f'Cross-validation scores: {scores}')
-print("%0.2f accuracy with a standard deviation of %0.2f" % (scores.mean(), scores.std()))
+list_classifiers = [[class_knn, 'K-NN'], [class_rf, 'Random Forest'], [class_mlp, 'Multi-Level Perceptron']]
 
 # Scaling and preparation of classifier
-pipe = make_pipeline(scaler_s, RandomForestClassifier())
-pipe.fit(X_train, y_train['class'])
-y_pred = pipe.predict(X_test)
+for cl in list_classifiers:
+    print('==========' + cl[1] + '==========')
 
-# Output performance metrics
-print('RANDOM FOREST')
-accuracy = accuracy_score(y_test['class'], y_pred)
-print(f'Accuracy: {accuracy}')
+    for sc in list_scaler:
+        print('----------' + sc[1] + '----------')
+        pipe = make_pipeline(sc[0], cl[0])
 
-class_report = classification_report(y_test['class'], y_pred)
-print("Classification Report:\n", class_report)
+        for om in list_outlier_masks:
+            print('..........' + om[1] + '..........')
+            X_train_masked, y_train_masked = X_train[om[0]], y_train[om[0]]
 
-# Prepare training and test sets for cross-validation
-scores = cross_val_score(pipe, X, y['class'], cv=5)
-print(f'Cross-validation scores: {scores}')
-print("%0.2f accuracy with a standard deviation of %0.2f" % (scores.mean(), scores.std()))
+            pipe.fit(X_train_masked, y_train_masked['class'])
+            y_pred = pipe.predict(X_test)
 
-# Scaling and preparation of classifier
-pipe = make_pipeline(scaler_s, MLPClassifier(solver='lbfgs', alpha=0.0001, activation='tanh', random_state=5))
-pipe.fit(X_train, y_train['class'])
-y_pred = pipe.predict(X_test)
+            accuracy = accuracy_score(y_test['class'], y_pred)
+            print(f'Accuracy: {accuracy}')
 
-# Output performance metrics
-print('MULTI LAYER PERCEPTRON')
-accuracy = accuracy_score(y_test['class'], y_pred)
-print(f'Accuracy: {accuracy}')
+            conf_mat = confusion_matrix(y_test['class'], y_pred)
+            print('Confusion Matrix:\n', conf_mat)
 
-class_report = classification_report(y_test['class'], y_pred)
-print("Classification Report:\n", class_report)
+            class_report = classification_report(y_test['class'], y_pred)
+            print("Classification Report:\n", class_report)
 
-# Prepare training and test sets for cross-validation
-scores = cross_val_score(pipe, X, y['class'], cv=5)
-print(f'Cross-validation scores: {scores}')
-print("%0.2f accuracy with a standard deviation of %0.2f" % (scores.mean(), scores.std()))
+            # Prepare training and test sets for cross-validation
+            scores = cross_val_score(pipe, X, y['class'], cv=5)
+            print(f'Cross-validation scores: {scores}')
+            print("%0.5f accuracy with a standard deviation of %0.5f" % (scores.mean(), scores.std()))
 
 # Predict unclassified test set
+pipe = make_pipeline(scaler_s, class_mlp)
+iso = IsolationForest(contamination=0.1)
+iso_ol = iso.fit_predict(X)
+mask_iso = iso_ol != -1
+X_masked, y_masked = X[mask_iso], y[mask_iso]
 pipe.fit(X, y['class'])
 y_pred = pipe.predict(X_comp)
 
