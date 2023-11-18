@@ -62,9 +62,44 @@ class_knn = KNeighborsClassifier(n_neighbors=17, weights='distance')
 class_rf = RandomForestClassifier()
 class_mlp = MLPClassifier(solver='lbfgs', alpha=0.0001, activation='tanh', random_state=5, max_iter=100, tol=0.01)
 
-print(1e-4)
-
 list_classifiers = [[class_knn, 'K-NN'], [class_rf, 'Random Forest'], [class_mlp, 'Multi-Level Perceptron']]
+
+# Baseline results
+classifier = KNeighborsClassifier()
+classifier.fit(X_train, y_train['class'])
+prediction = classifier.predict(X_test)
+
+accuracy = accuracy_score(y_test['class'], prediction)
+print(f'Accuracy: {accuracy}')
+conf_mat = confusion_matrix(y_test['class'], prediction)
+print('Confusion Matrix:\n', conf_mat)
+scores = cross_val_score(classifier, X, y['class'], cv=5)
+print(f'Cross-validation scores: {scores}')
+print("%0.5f accuracy with a standard deviation of %0.5f" % (scores.mean(), scores.std()))
+
+classifier = RandomForestClassifier()
+classifier.fit(X_train, y_train['class'])
+prediction = classifier.predict(X_test)
+
+accuracy = accuracy_score(y_test['class'], prediction)
+print(f'Accuracy: {accuracy}')
+conf_mat = confusion_matrix(y_test['class'], prediction)
+print('Confusion Matrix:\n', conf_mat)
+scores = cross_val_score(classifier, X, y['class'], cv=5)
+print(f'Cross-validation scores: {scores}')
+print("%0.5f accuracy with a standard deviation of %0.5f" % (scores.mean(), scores.std()))
+
+classifier = MLPClassifier()
+classifier.fit(X_train, y_train['class'])
+prediction = classifier.predict(X_test)
+
+accuracy = accuracy_score(y_test['class'], prediction)
+print(f'Accuracy: {accuracy}')
+conf_mat = confusion_matrix(y_test['class'], prediction)
+print('Confusion Matrix:\n', conf_mat)
+scores = cross_val_score(classifier, X, y['class'], cv=5)
+print(f'Cross-validation scores: {scores}')
+print("%0.5f accuracy with a standard deviation of %0.5f" % (scores.mean(), scores.std()))
 
 # Scaling and preparation of classifier
 for cl in list_classifiers:
