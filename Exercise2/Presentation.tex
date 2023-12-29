@@ -1,0 +1,413 @@
+\documentclass[10pt]{beamer}
+
+\usepackage{tabularx}
+
+\title{Machine Learning - Exercise 2: Classification or Regression}
+\author{Apostolescu Bianca, Chen Lu, Glinzner Matthias}
+\date{}
+\begin{document}
+\maketitle
+
+\begin{frame}
+\frametitle{Summary}
+\begin{itemize}
+\item Introduction
+\item Model Descriptions
+\item Hyperparameter Tuning Methods
+\item Experimental Setup and Results
+\item Comparisons
+\item Conclusion
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Introduction}
+\begin{itemize}
+\item \textbf{SimpleNN}: A flexible and modular architecture that allows it to adapt to different configurations, implemented using PyTorch.
+\item Implementation of two different methods for the search of configurations.
+\item Comparison with existing methods: an NN approach (using MLP) and a tree-based method (LightGBM).
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Model Descriptions - SimpleNN}
+\begin{columns}[T]
+\begin{column}{6cm}
+\begin{itemize}
+\item Type of feedforward neural networks
+\item Modular design 
+\item Dynamic Activation Functions
+\end{itemize}
+\end{column}
+\begin{column}{6cm}
+\begin{itemize}
+\item Batch Normalization
+\item Dropout Regularization
+\item Weight Normalization
+\end{itemize}
+\end{column}
+\end{columns}
+\includegraphics[width=10cm]{Fig1.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Model Descriptions - SimpleNN}
+\textbf{Initialization (\texttt{\_\_init\_\_}):}
+\begin{itemize}
+\item The \texttt{SimpleNN} class inherits from \texttt{nn.Module}
+\item It accepts four key parameters:
+\begin{itemize}
+\item \texttt{input\_size}: The number of features in the input data.
+\item \texttt{output\_size}: The number of output neurons.
+\item \texttt{layer\_sizes}: A list containing the size (number of neurons) of each hidden layer.
+\item \texttt{activation\_funcs}: A list of PyTorch activation functions to be used in each hidden layer.
+\end{itemize}
+\end{itemize}
+
+\textbf{Layers (\texttt{nn.ModuleList}):}
+\begin{itemize}
+\item \texttt{self.layers}: containing the \textbf{linear layers} of the network, with each linear layer connecting one layer's output to the next layer's input. The first layer connects the input to the first hidden layer, and each subsequent layer connects one hidden layer to the next.
+\item \texttt{self.batch\_norms}: stores \textbf{batch normalization layers} corresponding to each hidden layer.
+\item \texttt{self.dropouts}: containing \textbf{dropout layers}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Model Descriptions - SimpleNN}
+\textbf{First Layer Special Handling:}
+\begin{itemize}
+\item an explicit batch normalization layer (\texttt{self.batch\_norm1}) applied to the input features before the first hidden layer
+\item It helps in stabilizing the learning process by normalizing the distribution of the inputs.
+\end{itemize}
+
+\textbf{Output Layer:}
+\begin{itemize}
+\item an output layer (\texttt{self.output}) defined as a linear transformation after the last hidden layer
+\item It maps the final hidden layer's outputs to the desired output size.
+\end{itemize}
+
+\textbf{Forward Pass (\texttt{forward} method):}
+\begin{itemize}
+\item The input data is first passed through the initial batch normalization layer.
+\item Then, for each hidden layer, the data is processed by the linear layer, followed by batch normalization, dropout, and the specified activation function.
+\item Finally, the processed data is passed through the output linear layer to produce the network's output.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Model Descriptions - MLP}
+\textbf{Description:}
+\begin{itemize}
+\item Supervised learning algorithm that learns a function by training on a dataset.
+\end{itemize}
+\textbf{Advantages:}
+\begin{itemize}
+\item Capability to learn non-linear models.
+\item Capability to learn models in real-time.
+\end{itemize}
+\textbf{Disadvantages:}
+\begin{itemize}
+\item Hidden layers have a non-convex loss function where there exists more than one local minimum.
+Therefore different random weight initializations can lead to different validation accuracy.
+\item Requires tuning a number of hyperparameters such as the number of hidden neurons, layers, and iterations.
+\item Sensitive to feature scaling.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Model Descriptions - LightGBM}
+\textbf{Description:}
+\begin{itemize}
+\item Gradient boosting framework that uses tree based learning algorithms
+\end{itemize}
+\textbf{Characteristics:}
+\begin{itemize}
+\item Optimal split for categorical features
+\item Optimal feature parallelization 
+\item Optimal speed and memory usage
+\end{itemize}
+\textbf{Advantages:}
+\begin{itemize}
+\item Fast training speed
+\item Low memory usage
+\item Better performance metrics - focuses on optimizing the accuracy score
+\item Capable of dealing with high-scale data
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Model Descriptions - LightGBM}
+\begin{columns}[T]
+\begin{column}{6cm}
+\begin{figure}
+\centering
+\includegraphics[height=2cm]{Fig2.png}
+\caption{LightGBM uses leaf-wise tree growth}
+\end{figure}
+\begin{figure}
+\centering
+\includegraphics[height=2cm]{Fig3.png}
+\caption{Other boosting algorithms use level-wise tree growth}
+\end{figure}
+\end{column}
+\begin{column}{4cm}
+\begin{itemize}
+\item LightGBM grows trees vertically - leaf-wise 
+\item It chooses to grow the leaf with the maximum delta loss
+\item It reduced the loss more abruptly than a level-wise method
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Model Comparison}
+\begin{table}
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{XXXX}
+ & \textbf{SimpleNN} & \textbf{MLPClassifier} & \textbf{LightGBM} \\[1.5ex]
+\textbf{Model Type} & Neural networks (Multi-Layer Perceptron) & Neural networks (Multi-Layer Perceptron) & A gradient boosting framework based on decision trees \\
+\textbf{Learning Approach} & Learning \textbf{weight parameters}  & Learning \textbf{weight parameters}  & Sequentially improving predictions using an ensemble of weak decision tree models \\
+\textbf{Optimization} & Utilizes \textbf{backpropagation} and \textbf{gradient-based} optimization techniques. Suitable for both CPU and GPU computation & Typically optimized for CPU use & Designed for distributed and efficient training, particularly effective for large datasets \\
+\textbf{Use Case} & Complex, deep learning tasks where customization of the network architecture is required & Standard machine learning tasks for smaller to medium-sized datasets & Structured/tabular data \\
+\textbf{Customization and Complexity} & High customization & Limited compared to custom implementations &
+\end{tabularx}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Hyperparameter Tuning Methods}
+\footnotesize
+\textbf{Grid Search Approach}
+\begin{itemize}
+\item Tune hyperparameters by \textbf{exhaustively searching} through a specified subset of hyperparameter space.
+\end{itemize}
+\textbf{Local Search Technique}
+\begin{itemize}
+\item \textbf{Starting Point}: It begins with a base configuration (e.g., a set of hyperparameters).
+\item \textbf{Neighbor Solutions}: In each iteration, the algorithm explores "neighboring" configurations. These neighbors are slight variations of the current configuration (e.g., adding or removing a layer, changing the number of neurons).
+\item \textbf{Iterative Improvement}: If a neighbor shows improvement over the current configuration (e.g., higher F1 score), the algorithm moves to this new configuration.
+\item \textbf{Termination}: This process repeats until no further improvements are found or a certain number of iterations are completed.
+\item \textbf{Comparison to Grid Search}: Unlike grid search, which evaluates all possible configurations in a predefined grid, local search navigates the hyperparameter space more fluidly, potentially finding good solutions with fewer evaluations. However, it may also converge to a local optimum and miss the global optimum that grid search could find.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Experimental Setup - Dataset}
+\textbf{Loan Application Dataset}
+\begin{itemize}
+\item High Dimensionality : over 10k records and 92 features
+\item Class Imbalance
+\item Complex Interactions and Non-Linearity
+\end{itemize}
+
+\textbf{College US News}
+\begin{itemize}
+\item High Dimensionality : 1300 records and 34 features 
+\item Missing Values: ~ 18% 
+\item Outliers
+\end{itemize}
+
+\textbf{Breast Cancer Dataset}
+\begin{itemize}
+\item Low Dimensionality
+\item No missing values
+\item Few Outliers
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Experimental Setup - Training Process}
+\includegraphics[width=\textwidth]{Fig4.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Result on Loan Dataset}
+\begin{table}
+\centering
+\tiny
+\begin{tabularx}{\textwidth}{rrrrrrrrr}
+ & \textbf{Layer} & \textbf{Activation} & \textbf{Fold1} & \textbf{Fold2} & \textbf{Fold3} & \textbf{Fold4} & \textbf{Fold5} & \textbf{average} \\
+\textbf{0} & [64] & [ReLU] & 0.81 & 0.83 & 0.85 & 0.87 & 0.86 & 0.84 \\
+\textbf{1} & [64, 64] & [ReLU, ReLU] & 0.80 & 0.80 & 0.73 & 0.69 & 0.67 & 0.74 \\
+\textbf{2} & [128, 64] & [Tanh, ReLU] & 0.82 & 0.84 & 0.81 & 0.84 & 0.83 & 0.83 \\
+\textbf{3} & [128, 64] & [Tanh, Tanh] & 0.82 & 0.82 & 0.82 & 0.86 & 0.86 & 0.84 \\
+\textbf{4} & [64, 64, 32] & [ReLU, Tanh, ReLU] & 0.79 & 0.82 & 0.79 & 0.84 & 0.83 & 0.81 \\
+\textbf{5} & [128, 128, 64] & [ReLU, ReLU, ReLU] & 0.79 & 0.82 & 0.79 & 0.84 & 0.83 & 0.81 \\
+\textbf{6} & [128, 128, 64] & [Tanh, ReLU, ReLU] & 0.81 & 0.83 & 0.84 & 0.85 & 0.84 & 0.83
+\end{tabularx}
+\end{table}
+\scriptsize
+\begin{itemize}
+\item Configuration 0 has an average F1 score of 0.84, which is relatively stable, indicating that good results can be achieved even with a simpler network.
+\item The average scores of configuration 4 and configuration 5 are both 0.81, indicating a deeper network structure did not bring the expected performance improvements.
+\item Configuration 6 has an average F1 score of 0.83, showing consistent and relatively high performance, which may indicate that \textbf{a deep network with a hybrid activation function is suitable}.
+\end{itemize}
+
+\textbf{Depth vs Width}: Compared with increasing the depth of the layers, a proper balance of depth and width (such as configuration 2 and configuration 3) may be more important.
+
+\textbf{Impact of activation functions}: different activation functions seems to help capture different types of data features and patterns.
+\end{frame}
+
+\begin{frame}
+\frametitle{Result on Loan Dataset}
+\begin{table}
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{rrrrrrrrr}
+ & \textbf{Model} & \textbf{Fold1} & \textbf{Fold2} & \textbf{Fold3} & \textbf{Fold4} & \textbf{Fold5} & \textbf{average} & \textbf{Testset} \\
+\textbf{0} & MLP & 0.84 & 0.82 & 0.83 & 0.84 & 0.82 & 0.83 & 0.86 \\
+\textbf{1} & SimpleNN & 0.84 & 0.85 & 0.84 & 0.85 & 0.85 & 0.85 & 0.85 \\
+\textbf{2} & LightGBM & 0.99 & 0.98 & 0.99 & 0.99 & 0.99 & 0.99 & 0.99
+\end{tabularx}
+\end{table}
+
+\scriptsize
+\textbf{Model performance}: 
+\begin{itemize}
+\item LightGBM significantly outperforms MLP and SimpleNN on this task.
+(LightGBM generally performs better when processing tabular data and large-scale datasets, especially when feature relationships can be well represented by decision trees.)
+\end{itemize}
+
+\textbf{Model selection}:
+\begin{itemize} 
+\item Neural network models (MLP and SimpleNN) performed relatively well in cross-validation, they failed to reach the performance level of LightGBM.
+\end{itemize}
+
+\textbf{Overfitting and generalization}:
+\begin{itemize}
+\item The performance of MLP and SimpleNN on the test set is similar to the cross-validation results, which indicates they maintain good generalization ability on unseen data.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Result on College US News Dataset}
+\begin{table}
+\centering
+\tiny
+\begin{tabularx}{\textwidth}{rrrrrrrrr}
+ & \textbf{Layer} & \textbf{Activation} & \textbf{Fold1} & \textbf{Fold2} & \textbf{Fold3} & \textbf{Fold4} & \textbf{Fold5} & \textbf{average} \\
+\textbf{0} & [64] & [ReLU] & 0.80 & 0.83 & 0.89 & 0.87 & 0.85 & 0.85 \\
+\textbf{1} & [64, 64] & [ReLU, ReLU] & 0.84 & 0.81 & 0.84 & 0.83 & 0.84 & 0.83 \\
+\textbf{2} & [128, 64] & [Tanh, ReLU] & 0.82 & 0.80 & 0.83 & 0.81 & 0.86 & 0.82 \\
+\textbf{3} & [128, 64] & [Tanh, Tanh] & 0.84 & 0.83 & 0.84 & 0.79 & 0.88 & 0.84 \\
+\textbf{4} & [64, 64, 32] & [ReLU, Tanh, ReLU] & 0.75 & 0.81 & 0.88 & 0.81 & 0.85 & 0.82 \\
+\textbf{5} & [128, 128, 64] & [ReLU, ReLU, ReLU] & 0.72 & 0.83 & 0.83 & 0.90 & 0.85 & 0.83 \\
+\textbf{6} & [128, 128, 64] & [Tanh, ReLU, ReLU] & 0.83 & 0.81 & 0.84 & 0.84 & 0.87 & 0.84
+\end{tabularx}
+\end{table}
+\scriptsize
+\begin{itemize}
+\item The first configuration provides the highest F1-Score - 0.84 -  for the NN, which proves that even the simplest configuration of the implemented NN provides good results.
+\item The rest of the configurations have similar scores, indicating that the depth and complexity of the NN do not influence the results.
+\end{itemize}
+
+\textbf{Depth vs Width}: Comparing the results, the simpler configurations offer the best results for a dataset that is balanced and does not have a high dimensionality compared to the other ones.
+
+\textbf{Impact of activation functions}: different activation functions seem to capture different patterns, although analysing the 3rd and 6th configurations, the Tanh activation function seems to be ideal.
+\end{frame}
+
+\begin{frame}
+\frametitle{Result on College US News Dataset}
+\begin{table}
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{rrrrrrrrr}
+ & \textbf{Model} & \textbf{Fold1} & \textbf{Fold2} & \textbf{Fold3} & \textbf{Fold4} & \textbf{Fold5} & \textbf{average} & \textbf{Testset} \\
+\textbf{0} & MLP & 0.60 & 0.65 & 0.58 & 0.73 & 0.64 & 0.64 & 0.69 \\
+\textbf{1} & SimpleNN & 0.76 & 0.77 & 0.77 & 0.77 & 0.76 & 0.77 & 0.71 \\
+\textbf{2} & LightGBM & 0.71 & 0.73 & 0.72 & 0.76 & 0.73 & 0.73 & 0.73
+\end{tabularx}
+\end{table}
+
+\scriptsize
+\textbf{Model performance}: 
+\begin{itemize}
+\item The performance of all the models is similar, the LightGBM model slightly outperforming the MLP and the implemented Simple NN model.
+\item LightGBM is known to have better performance when dealing with categorical features and non-linear data.
+\end{itemize}
+
+\textbf{Model selection}:
+\begin{itemize} 
+\item Over the cross-validation folds, the F1-Scores are similar between models, however, on unseen data, LightGBM outperformed the other two.
+\end{itemize}
+
+\textbf{Overfitting and generalization}:
+\begin{itemize}
+\item While the performance of MLP for the test set remains similar to the cross-validation results, for the Simple NN, the results for the test set decrease due to its inability to generalize pattern on unseen data.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Result on Breast Cancer Dataset}
+\begin{table}
+\centering
+\tiny
+\begin{tabularx}{\textwidth}{rrrrrrrrr}
+ & \textbf{Layer} & \textbf{Activation} & \textbf{Fold1} & \textbf{Fold2} & \textbf{Fold3} & \textbf{Fold4} & \textbf{Fold5} & \textbf{average} \\
+\textbf{0} & [64] & [ReLU] & 0.95 & 0.98 & 1.00 & 1.00 & 1.00 & 0.99 \\
+\textbf{1} & [64, 64] & [ReLU, ReLU] & 0.98 & 0.96 & 1.00 & 1.00 & 1.00 & 0.99 \\
+\textbf{2} & [128, 64] & [Tanh, ReLU] & 0.96 & 0.93 & 0.98 & 1.00 & 1.00 & 0.98 \\
+\textbf{3} & [128, 64] & [Tanh, Tanh] & 0.98 & 1.00 & 1.00 & 0.98 & 1.00 & 0.99 \\
+\textbf{4} & [64, 64, 32] & [ReLU, Tanh, ReLU] & 0.98 & 0.98 & 1.00 & 1.00 & 0.96 & 0.99 \\
+\textbf{5} & [128, 128, 64] & [ReLU, ReLU, ReLU] & 0.98 & 0.96 & 1.00 & 1.00 & 0.98 & 0.99 \\
+\textbf{6} & [128, 128, 64] & [Tanh, ReLU, ReLU] & 0.98 & 1.00 & 1.00 & 0.98 & 0.98 & 0.99
+\end{tabularx}
+\end{table}
+\scriptsize
+\begin{itemize}
+\item The configuration with index 3 performs slightly better than the rest.
+\item Overall the results show that for this dataset neural networks in general achieve high scores.
+\end{itemize}
+
+\textbf{Depth vs Width}: All scores are high, there is very little difference.
+
+\textbf{Impact of activation functions}: Again, the differences are negligible; Tanh seems to perform slightly better.
+\end{frame}
+
+\begin{frame}
+\frametitle{Result on Breast Cancer Dataset}
+\begin{table}
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{rrrrrrrrr}
+ & \textbf{Model} & \textbf{Fold1} & \textbf{Fold2} & \textbf{Fold3} & \textbf{Fold4} & \textbf{Fold5} & \textbf{average} & \textbf{Testset} \\
+\textbf{0} & MLP & 0.89 & 0.88 & 0.88 & 0.83 & 0.96 & 0.89 & 0.88 \\
+\textbf{1} & SimpleNN & 0.98 & 0.98 & 0.99 & 0.99 & 0.99 & 0.99 & 0.99 \\
+\textbf{2} & LightGBM & 1.00 & 0.88 & 0.93 & 0.91 & 0.95 & 0.94 & 0.95
+\end{tabularx}
+\end{table}
+
+\scriptsize
+\textbf{Model performance}: 
+\begin{itemize}
+\item Interestingly, SimpleNN outperforms its competition with LightGBM a close second.
+\item MLP performs worst.
+\end{itemize}
+
+\textbf{Model selection}:
+\begin{itemize} 
+\item SimpleNN performs well on this dataset.
+\end{itemize}
+
+\textbf{Overfitting and generalization}:
+\begin{itemize}
+\item Due to the structure of the dataset, neural networks in general perform well.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Conclusion}
+\begin{itemize}
+\item Looked at three models: \textbf{SimpleNN}, \textbf{MLPClassifier} and \textbf{LightGBM}
+\item Looked at three datasets: \textbf{Loans}, \textbf{College US News} and \textbf{Breast Cancer}
+\item Compared results:
+\begin{itemize}
+\item LightGBM outperforms other models except for the Breast Cancer dataset
+\item Tanh seems to perform slightly better
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\end{document}
